@@ -102,6 +102,21 @@ def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_re
     dfn = data[cols_num].describe(include = 'all', percentiles = [.05, .25, .5, .75, .95]).T
     # add percent of nan values
     #dfn['%nan'] = (data[cols_num].isnull().sum()*100 / len(data)).values
+    # mode
+    lmode = list()
+    for col in cols_num:
+        # collect data
+        v = data[col].values
+        # remove nans
+        v = list(v[~(np.isnan(v))])
+        # estimate mode
+        if len(v)>1:
+            imode = max(v, key=v.count)
+        else:
+            imode = np.nan
+        # append
+        lmode.append(imode)
+    dfn['mode'] = lmode
     # kurtosis
     dfn['kurtosis'] = kurtosis(data[cols_num], nan_policy = 'omit')
     # skew
@@ -115,12 +130,14 @@ def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_re
         dfn['gaussian'] = [htest.test_shapiro(data[c], alpha = alpha) for c in cols_num]
     # test if it is gaussian
     dfn['unimodal'] = [htest.test_dip(data[c], alpha = alpha) for c in cols_num]
+    # semi inter-quantil range
+    dfn['semi_iqr'] = (1/2) * (dfn['75%'].values - dfn['25%'].values)
     # format
     dfn['count'] = dfn['count'].astype(int)
-    for col in ['mean', 'std', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew']:
+    for col in ['mode', 'mean', 'std', 'semi_iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew']:
         dfn[col] = dfn[col].values.round(decimals=decimals)
     # return
-    return dfn
+    return dfn[['count', 'mode', 'mean', 'std', 'semi_iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew', 'uniform','gaussian', 'unimodal']]
 
 
 ## describe function for categorical data
