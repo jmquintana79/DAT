@@ -1,6 +1,21 @@
 import math
 import numpy as np
 import pandas as pd
+from functools import wraps
+import time
+
+
+## decorator: time spent estimation
+def timeit(func):
+    @wraps(func)
+    def new_func(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        elapsed_time = time.time() - start_time
+        print('[info] Function "{}()" finished in {:.2f} {}.'.format(
+            func.__name__, elapsed_time if elapsed_time < 60 else elapsed_time / 60., "seconds" if elapsed_time < 60 else "minutes"))
+        return result
+    return new_func
 
 
 ## estimate order of magnitude
