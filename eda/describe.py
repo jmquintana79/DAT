@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import kurtosis, skew
 import eda.tools as tools
-from eda.tools import timeit
+from eda.tools import timeit, preparation
 import eda.htest as htest
 from eda.analysis import analysis_cat_cat, analysis_num_num, analysis_cat_num
 import itertools
@@ -257,6 +257,8 @@ def describe_bivariate(data:pd.DataFrame,
                      size_max_sample:int = None, 
                      is_remove_outliers:bool = True,
                      alpha:float = 0.05, 
+                     max_num_rows:int = 5000, 
+                     max_size_cats:int = 5,
                      verbose:bool = False)->pd.DataFrame:                       
     """
     Describe bivariate relationships.
@@ -266,10 +268,13 @@ def describe_bivariate(data:pd.DataFrame,
                        is not None are used random subsamples although it will not remove bivariate
                        outliers (default, None).
     is_remove_outliers -- Remove or not univariate outliers (default, True).
+    alpha -- significance level (default, 0.05).
+    max_num_rows -- maximum number of rows allowed without considering a sample (default, 5000).
+    max_size_cats -- maximum number of possible values in a categorical variable to be allowed (default, 5).
     return -- results in a table.
     """ 
-    # copy data
-    df = data.copy()
+    # data preparation
+    df = preparation(data, max_num_rows, max_size_cats, verbose = True)
     # relationship num - num
     dfnn = analysis_num_num(df, only_dependent = only_dependent, size_max_sample = size_max_sample,
                             is_remove_outliers = is_remove_outliers, alpha = alpha, verbose = verbose)                                                    
@@ -288,17 +293,21 @@ def describe_bivariate(data:pd.DataFrame,
 
 ## Describe duplicates for all combinations of columns
 @timeit
-def describe_duplicates(data:pd.DataFrame)->pd.DataFrame:
+def describe_duplicates(data:pd.DataFrame, max_num_rows:int = 5000, max_size_cats:int = 5)->pd.DataFrame:
     """
     Describe duplicates for all combinations of columns.
     data -- data to be analized.
+    max_num_rows -- maximum number of rows allowed without considering a sample (default, 5000).
+    max_size_cats -- maximum number of possible values in a categorical variable to be allowed (default, 5).
     return -- percent of duplicated records per columns combinations.
     """
+    # data preparation
+    df = preparation(data, max_num_rows, max_size_cats, verbose = True)
     
     ## all possible combinations of column names
 
     # list of columns
-    columns = data.columns.tolist()
+    columns = df.columns.tolist()
     # possible number of elements for combinations
     rs = np.arange(1,len(columns)+1, 1)
     # initialize
@@ -313,10 +322,10 @@ def describe_duplicates(data:pd.DataFrame)->pd.DataFrame:
     # initialize
     records = list()
     # loop of combinations
-    for comb in combs_columns[:]:
+    for comb in combs_columns:
         # list of columns with a fixed size
         list_columns = list(comb) + ['' for i in range(len(columns) - len(comb))]
         # append
-        records.append(list_columns + [100 * (1 - (data.drop_duplicates(list(comb)).shape[0] / data.shape[0]))] )
+        records.append(list_columns + [100 * (1 - (df.drop_duplicates(list(comb)).shape[0] / df.shape[0]))] )
     # list to df and retunr
     return pd.DataFrame(records, columns = [f'col{i}' for i in range(len(columns))] + ["percent_dupli"]).sort_values("percent_dupli", ascending = False)

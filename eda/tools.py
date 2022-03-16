@@ -149,3 +149,58 @@ def multivariate_outliers_detection(data:pd.DataFrame,
         return data
     else:
         return df_mask
+    
+    
+## data preparation previous to be analized
+def preparation(df:pd.DataFrame, max_num_rows:int = 5000, max_size_cats:int = 5, verbose:bool = True)->pd.DataFrame:
+    """
+    Data preparation previous to be analized.
+    df -- data to be prepared.
+    max_num_rows -- maximum number of rows allowed without considering a sample (default, 5000).
+    max_size_cats -- maximum number of possible values in a categorical variable to be allowed (default, 5).
+    verbose -- display extra information (default, True).
+    return -- processed data.
+    """
+
+    ## get random sample if there are too much data
+
+    # validate
+    if len(df) > max_num_rows:
+        # get a random sample
+        df = df.sample(max_num_rows, random_state = 8)
+        # display
+        if verbose:
+            print(f"[warning] It has taken a random sample with {len(df)} records.")
+
+
+    ## get simplified categorical columns reducing the number of possible values
+
+    # get names of categorical columns
+    cols_cat = df.select_dtypes(include=['object', 'int64', 'category', 'bool']).columns.values
+    # validate
+    if len(cols_cat) > 0:
+        # loop of variables
+        for col in cols_cat:
+            # count categories
+            temp = df[col].value_counts(normalize=True,sort=True,ascending=False,dropna=True)
+            # collect names order by frequency
+            c = temp.index.values
+            # resize
+            if len(c) > max_size_cats:
+                # get columns to be replace by "other"
+                #cols_to_keep = list(c[:max_size_cats-1])
+                cols_to_replace = list(c[max_size_cats-1:])    
+                # replace less frequent columns by "others"
+                df[col] = df[col].apply(lambda x: "other" if x in cols_to_replace else x)
+                # validate
+                if len(df[col].dropna().unique()) != max_size_cats:
+                    print(f"[error] something was wrong in column '{col}' reducing its possible values.")
+                else:
+                    if verbose:
+                        print(f"[info] it was simplified the categorical variable '{col}'.")
+            else:
+                pass
+            # clean
+            del temp
+    # return 
+    return df
