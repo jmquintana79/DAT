@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from minepy import MINE
+from eda.tools import validait
 
 
 ## test if it is an array is a uniform distribution for numeric data
@@ -360,6 +361,7 @@ def correlation_kendalltau(data1:np.array,
 
         
 ## Linear correlation analysis to test independence for numerical / ordinal variables
+@validait
 def analysis_linear_correlation(data1:np.array, 
                                 data2:np.array,
                                 alpha:float = .05, 
@@ -490,6 +492,7 @@ def chi_square(data1:np.array, data2:np.array, alpha:float = 0.05, verbose:bool 
     
 
 ## Leneve test (test if samples have same variance = Homoscedasticity)
+@validait
 def test_leneve(*args, alpha:float = 0.05, verbose:bool = False)->bool:
     """
     Leneve test (test if samples have same variance = Homoscedasticity).
@@ -593,6 +596,7 @@ def test_kruskal(*args, alpha:float = 0.05, verbose:bool = False)->bool:
     
     
 ## Variance analysis: subsamples of num variable created by a cat variable are the same original sample
+@validait
 def analysis_variance(data_cat:np.array, 
                       data_num:np.array,
                       alpha:float = .05, 

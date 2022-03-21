@@ -1,11 +1,13 @@
 import pandas as pd
 import numpy as np
 import eda.tools as tools
+from eda.tools import validait
 import eda.htest as htest
 import itertools
 
 
 ## Describe relationship between numerical - numerical variables
+@validait
 def analysis_num_num(df:pd.DataFrame, 
                      only_dependent:bool = False, 
                      size_max_sample:int = None, 
@@ -94,6 +96,7 @@ def analysis_num_num(df:pd.DataFrame,
 
 
 ## Describe relationship between categorical - categorical variables
+@validait
 def analysis_cat_cat(df:pd.DataFrame, 
                      only_dependent:bool = False,
                      alpha:float = 0.05, 
@@ -131,6 +134,7 @@ def analysis_cat_cat(df:pd.DataFrame,
 
 
 ## Describe relationship between categorical - numerical variables
+@validait
 def analysis_cat_num(df:pd.DataFrame, 
                      only_dependent:bool = False,
                      alpha:float = 0.05, 

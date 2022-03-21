@@ -2,13 +2,14 @@ import pandas as pd
 import numpy as np
 from scipy.stats import kurtosis, skew
 import eda.tools as tools
-from eda.tools import timeit, preparation
+from eda.tools import timeit, validait, preparation
 import eda.htest as htest
 from eda.analysis import analysis_cat_cat, analysis_num_num, analysis_cat_num
 import itertools
 
  
 ## get basic information of df variables
+@validait
 def describe_info(data:pd.DataFrame, decimals:int = 2)->pd.DataFrame:
     """
     Get basic information of df variables.
@@ -57,6 +58,7 @@ def describe_info(data:pd.DataFrame, decimals:int = 2)->pd.DataFrame:
 
 
 ## Missing values analysis
+@validait
 def describe_missing(data:pd.DataFrame):
     """
     ## Missing values analysis.
@@ -84,6 +86,7 @@ def describe_missing(data:pd.DataFrame):
     
 ## describe function for numeric data
 @timeit
+@validait
 def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_remove_outliers:bool = False)->pd.DataFrame:
     """
     Describe tool for numeric data.
@@ -145,6 +148,7 @@ def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_re
 
 ## describe function for categorical data
 @timeit
+@validait
 def describe_categorical(df:pd.DataFrame, max_size_cats:int = 5, alpha:float = .05, decimals:int = 2)->pd.DataFrame:
     """
     Describe tool for categorical data.
@@ -202,6 +206,7 @@ def describe_categorical(df:pd.DataFrame, max_size_cats:int = 5, alpha:float = .
 
 
 ## describe function for datetime data
+@validait
 def describe_datetime(df:pd.DataFrame, decimals:int = 2)->pd.DataFrame:
     """
     Describe tool for datetime data.
@@ -252,6 +257,7 @@ def describe_datetime(df:pd.DataFrame, decimals:int = 2)->pd.DataFrame:
 
 ## Describe bivariate relationships
 @timeit
+@validait
 def describe_bivariate(data:pd.DataFrame, 
                      only_dependent:bool = False, 
                      size_max_sample:int = None, 
@@ -293,6 +299,7 @@ def describe_bivariate(data:pd.DataFrame,
 
 ## Describe duplicates for all combinations of columns
 @timeit
+@validait
 def describe_duplicates(data:pd.DataFrame, max_num_rows:int = 5000, max_size_cats:int = 5)->pd.DataFrame:
     """
     Describe duplicates for all combinations of columns.

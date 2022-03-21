@@ -18,6 +18,18 @@ def timeit(func):
     return new_func
 
 
+## decorator: handle errors (no impact on help() function)
+def validait(func):
+    @wraps(func)
+    def handle_error(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            descr = '[error] Function "%s()": %s'%(func.__name__,str(e))
+            print(descr)
+    return handle_error
+
+
 ## estimate order of magnitude
 def magnitude(value:float)->int:
     """
@@ -33,6 +45,7 @@ def magnitude(value:float)->int:
 
     
 ## estimate most frequent value in a list
+@validait
 def most_frequent(List:list)->"element":
     """
     Estimate most frequent value in a list.
@@ -43,6 +56,7 @@ def most_frequent(List:list)->"element":
 
 
 ## remove outliers of a 1D array according to the Inter Quartile Range (IQR)
+@validait
 def remove_outliers_IQR(v:np.array, verbose:bool = False)->np.array:
     """
     Remove outliers of a 1D array according to the Inter Quartile Range (IQR).
@@ -99,6 +113,7 @@ def detect_outliers_LOF(X:np.array, n_neighbors:int = 25, n_jobs:int = 2, verbos
 
 
 ## multivariante outliers detection for a given column of a df
+@validait
 def multivariate_outliers_detection(data:pd.DataFrame, 
                                   col_names: list,
                                   is_remove:bool = True,  
@@ -152,6 +167,7 @@ def multivariate_outliers_detection(data:pd.DataFrame,
     
     
 ## data preparation previous to be analized
+@validait
 def preparation(df:pd.DataFrame, max_num_rows:int = 5000, max_size_cats:int = 5, verbose:bool = True)->pd.DataFrame:
     """
     Data preparation previous to be analized.
