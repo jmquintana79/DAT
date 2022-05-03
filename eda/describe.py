@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import kurtosis, skew
 import eda.tools as tools
-from eda.tools import timeit, validait, preparation
+from eda.tools import timeit, validait, preparation, drop_duplicates
 import eda.htest as htest
 from eda.analysis import analysis_cat_cat, analysis_num_num, analysis_cat_num
 import itertools
@@ -333,6 +333,6 @@ def describe_duplicates(data:pd.DataFrame, max_num_rows:int = 5000, max_size_cat
         # list of columns with a fixed size
         list_columns = list(comb) + ['' for i in range(len(columns) - len(comb))]
         # append
-        records.append(list_columns + [100 * (1 - (df.drop_duplicates(list(comb)).shape[0] / df.shape[0]))] )
+        records.append(list_columns + [100 * (1 - (drop_duplicates(df, list(comb)).shape[0] / df.shape[0]))] )
     # list to df and retunr
     return pd.DataFrame(records, columns = [f'col{i}' for i in range(len(columns))] + ["percent_dupli"]).sort_values("percent_dupli", ascending = False)

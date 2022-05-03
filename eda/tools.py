@@ -220,3 +220,24 @@ def preparation(df:pd.DataFrame, max_num_rows:int = 5000, max_size_cats:int = 5,
             del temp
     # return 
     return df
+
+
+## drop duplicates in a dataframe based on a list of columns with / without counter
+def drop_duplicates(df:pd.DataFrame, columns: list, include_counter:bool=False)->pd.DataFrame:
+    """
+    Drop duplicates in a dataframe based on a list of columns with / without counter.
+    df -- Data to be analized.
+    columns -- Data columns to be used to analyze duplicates.
+    include_counter -- Include or not a counter of duplicated records as a new column (default, False).
+    return -- Data without duplicates.
+    """
+    # validate inputs
+    for c in columns:
+        assert c in df.columns.tolist(), f'column "{c}" is not available in df.'
+    # validate if include the counter
+    if include_counter:
+        # remove duplicates with counter
+        return df.groupby(columns, dropna = False)[[columns[0]]].count().rename(columns = {columns[0]:'num_duplicated'}).reset_index()
+    else:
+        # remove duplicates without counter
+        return df.groupby(columns, dropna = False)[[columns[0]]].count().rename(columns = {columns[0]:'num_duplicated'}).reset_index().drop('num_duplicated', axis = 1)
