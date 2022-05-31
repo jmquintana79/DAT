@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import kurtosis, skew
 import eda.tools as tools
-from eda.tools import timeit, validait, preparation, drop_duplicates
+from eda.tools import timeit, validait, preparation, cat_encoding
 import eda.htest as htest
 from eda.analysis import analysis_cat_cat, analysis_num_num, analysis_cat_num
 import itertools
@@ -300,21 +300,23 @@ def describe_bivariate(data:pd.DataFrame,
 ## Describe duplicates for all combinations of columns
 @timeit
 @validait
-def describe_duplicates(data:pd.DataFrame, max_num_rows:int = 5000, max_size_cats:int = 5)->pd.DataFrame:
+def describe_duplicates(data:pd.DataFrame)->pd.DataFrame:
     """
     Describe duplicates for all combinations of columns.
     data -- data to be analized.
-    max_num_rows -- maximum number of rows allowed without considering a sample (default, 5000).
-    max_size_cats -- maximum number of possible values in a categorical variable to be allowed (default, 5).
     return -- percent of duplicated records per columns combinations.
     """
-    # data preparation
-    df = preparation(data, max_num_rows, max_size_cats, verbose = True)
+    
+    ## data encoding (required for np.unique function)
+    
+    # collect categorical columns
+    columns = data.select_dtypes(include=['object', 'category', 'bool']).columns.values
+    # encoding categorical values
+    df = cat_encoding(data[columns])
+
     
     ## all possible combinations of column names
-
-    # list of columns
-    columns = df.columns.tolist()
+    
     # possible number of elements for combinations
     rs = np.arange(1,len(columns)+1, 1)
     # initialize
@@ -323,7 +325,7 @@ def describe_duplicates(data:pd.DataFrame, max_num_rows:int = 5000, max_size_cat
     for r in rs:
         combs_columns += list(itertools.combinations(columns,r=r))
 
-
+        
     ## estimate percent of duplicated records
 
     # initialize
@@ -333,6 +335,6 @@ def describe_duplicates(data:pd.DataFrame, max_num_rows:int = 5000, max_size_cat
         # list of columns with a fixed size
         list_columns = list(comb) + ['' for i in range(len(columns) - len(comb))]
         # append
-        records.append(list_columns + [100 * (1 - (drop_duplicates(df, list(comb)).shape[0] / df.shape[0]))] )
-    # list to df and retunr
-    return pd.DataFrame(records, columns = [f'col{i}' for i in range(len(columns))] + ["percent_dupli"]).sort_values("percent_dupli", ascending = False)
+        records.append(list_columns + [len(comb), (df.shape[0] - np.unique(df[list(comb)], axis = 0).shape[0]) * 100. / df.shape[0]] )
+    # list to df and return
+    return pd.DataFrame(records, columns = [f'col{i}' for i in range(len(columns))] + ["num_cols", "percent_dupli"]).sort_values(["num_cols", "percent_dupli"], ascending = [False, False])
