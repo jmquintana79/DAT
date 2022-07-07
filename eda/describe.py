@@ -61,7 +61,7 @@ def describe_info(data:pd.DataFrame, decimals:int = 2)->pd.DataFrame:
 @validait
 def describe_missing(data:pd.DataFrame):
     """
-    ## Missing values analysis.
+    Missing values analysis.
     data -- df to be analized.
     return -- None.
     """
@@ -84,6 +84,46 @@ def describe_missing(data:pd.DataFrame):
         plt.show()
     
     
+## Outliers values analysis
+@validait
+def describe_outliers(df:pd.DataFrame):
+    """
+    Outlier values analysis. The outlier detection tecnique used is with IQR distances.
+    df -- df to be analyzed.
+    return -- None.
+    """
+    # get names of numeric columns
+    cols_num = df.select_dtypes(include=['float64', 'int64']).columns.values
+    # validate
+    if len(cols_num) == 0:
+        # display
+        print('There are not any numerical columns in this dataframe.')
+        # return
+        return None
+    # initialize output df
+    temp = pd.DataFrame(np.zeros(df[cols_num].shape, dtype = bool), columns = cols_num)
+    # loop of columns
+    for c in cols_num:
+        # collect data
+        v = df[c].values
+        # mark outliers
+        v = tools.mark_outliers_IQR(v, verbose = False)
+        # include in marks in output df
+        temp[c] = (v == np.inf)
+    # number of outliers found
+    num_outliers = temp.sum().sum()
+    # validate if there are or not outliers
+    if num_outliers == 0:
+        print("There are not any outlier in numerical columns.")
+    else:
+        # replace True values with NaN to be detected as a missing value
+        temp.replace(True, np.nan, inplace = True)    
+        # launch missing analysis
+        describe_missing(temp)
+    # return
+    return None
+        
+        
 ## describe function for numeric data
 @timeit
 @validait
@@ -108,8 +148,9 @@ def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_re
     dfn = data[cols_num].describe(include = 'all', percentiles = [.05, .25, .5, .75, .95]).T
     # add percent of nan values
     #dfn['%nan'] = (data[cols_num].isnull().sum()*100 / len(data)).values
-    # mode
+    # mode / mode percent
     lmode = list()
+    lmode_percent = list()
     for col in cols_num:
         # collect data
         v = data[col].values
@@ -118,11 +159,15 @@ def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_re
         # estimate mode
         if len(v)>1:
             imode = max(v, key=v.count)
+            imode_percent = len([iv for iv in v if iv == imode]) * 100. / len(v)
         else:
             imode = np.nan
+            imode_percent = np.nan
         # append
         lmode.append(imode)
+        lmode_percent.append(imode_percent)
     dfn['mode'] = lmode
+    dfn['mode_per'] = lmode_percent
     # kurtosis
     dfn['kurtosis'] = kurtosis(data[cols_num], nan_policy = 'omit')
     # skew
@@ -140,10 +185,10 @@ def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_re
     dfn['iqr'] = dfn['75%'].values - dfn['25%'].values
     # format
     dfn['count'] = dfn['count'].astype(int)
-    for col in ['mode', 'mean', 'std', 'iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew']:
+    for col in ['mode', 'mode_per', 'mean', 'std', 'iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew']:
         dfn[col] = dfn[col].values.round(decimals=decimals)
     # return
-    return dfn[['count', 'mode', 'mean', 'std', 'iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew', 'uniform','gaussian', 'unimodal']]
+    return dfn[['count', 'mode', 'mode_per', 'mean', 'std', 'iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew', 'uniform','gaussian', 'unimodal']]
 
 
 ## describe function for categorical data
