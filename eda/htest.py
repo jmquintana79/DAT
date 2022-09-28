@@ -170,7 +170,47 @@ def test_anderson(data:np.array, alpha:float = .05, verbose:bool = False)->bool:
         # return
         return False
             
-            
+
+## Anderson test for Exponential distribution
+def test_anderson_exponential(data:np.array, verbose:bool = False)->bool:
+    """
+    Test if distribution is Exponential.
+    data -- 1D data to be tested.
+    verbose -- Display extra information (default, False).
+    return -- boolean according test result.
+    """
+    from scipy.stats import normaltest
+    # remove nan values
+    data = data[~(np.isnan(data))]  
+    try:
+        from scipy.stats import anderson
+        result = anderson(data, 'expon')       
+        sl, cv = result.significance_level[0], result.critical_values[0]
+    except:
+        # manage exception
+        if verbose:
+            print('[error-Anderson] It was not possible get a result.')
+        return np.nan     
+
+    # display
+    if verbose:
+        print ('Anderson Test'.center(110, '-'))
+        print ('t_stat: %s' % (result.statistic))   
+    # results
+    if result.statistic < cv:
+        # display
+        if verbose:
+            print('Probably Exponential at the 1% of significance level' % (sl))
+        # return result
+        return True
+    else:
+        # display
+        if verbose:
+            print('Probably not Exponential at the 1% of significance level' % (sl))
+        # return 
+        return False
+    
+    
 ## test if is unimodal
 def test_dip(data:np.array, alpha:float = 0.05, verbose:bool = False)->bool:
     """
