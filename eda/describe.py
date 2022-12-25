@@ -179,18 +179,18 @@ def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_re
         dfn['gaussian'] = [htest.test_anderson(data[c], alpha = alpha) for c in cols_num]
     else:
         dfn['gaussian'] = [htest.test_shapiro(data[c], alpha = alpha) for c in cols_num]
-    # test if it is exponential
-    dfn['expo'] = [htest.test_anderson_exponential(data[c]) for c in cols_num]
     # test if it is unimodal
     dfn['unimodal'] = [htest.test_dip(data[c], alpha = alpha) for c in cols_num]
     # inter-quantil range
     dfn['iqr'] = dfn['75%'].values - dfn['25%'].values
+    # normalized std
+    dfn['std_norm'] = dfn['std'].values / dfn['mean'].values
     # format
     dfn['count'] = dfn['count'].astype(int)
-    for col in ['mode', 'mode_per', 'mean', 'std', 'iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew']:
+    for col in ['mode', 'mode_per', 'mean', 'std', 'std_norm', 'iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew']:
         dfn[col] = dfn[col].values.round(decimals=decimals)
     # return
-    return dfn[['count', 'mode', 'mode_per', 'mean', 'std', 'iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew', 'uniform','gaussian', 'expo', 'unimodal']]
+    return dfn[['count', 'mode', 'mode_per', 'mean', 'std', 'std_norm', 'iqr', 'min', '5%', '25%', '50%', '75%', '95%', 'max', 'kurtosis', 'skew', 'uniform','gaussian', 'unimodal']]
 
 
 ## describe function for categorical data
