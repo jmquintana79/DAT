@@ -4,6 +4,7 @@ import eda.tools as tools
 from eda.tools import validait
 import eda.htest as htest
 import itertools
+import ppscore as pps
 
 
 ## Describe relationship between numerical - numerical variables
@@ -75,22 +76,27 @@ def analysis_num_num(df:pd.DataFrame,
             corr_linear, _ = htest.analysis_linear_correlation(data1, data2, alpha = alpha, return_corr = True, verbose = verbose)    
             # non linear correlation (Maximal Information Score)
             corr_mic = htest.correlation_mic(data1, data2)
+            # PPS
+            pps12 = pps.score(temp, cnum[0], cnum[1])["ppscore"]
+            pps21 = pps.score(temp, cnum[1], cnum[0])["ppscore"]
         # append
         if only_dependent:
-            if  not is_independent_spearman:
-                num_num.append([cnum[0], cnum[1], not is_independent, corr_linear, corr_mic])
+            if  not is_independent:
+                num_num.append([cnum[0], cnum[1], not is_independent, corr_linear, corr_mic, pps12, pps21])
             else:
                 pass
         else:
-            num_num.append([cnum[0], cnum[1], not is_independent, corr_linear, corr_mic])
+            num_num.append([cnum[0], cnum[1], not is_independent, corr_linear, corr_mic, pps12, pps21])
         # cleand
         del temp
     # store in df  
-    cols_num_num = ['variable1', 'variable2', 'depend_corr_linear', 'corr_linear', 'corr_non_linear']
+    cols_num_num = ['variable1', 'variable2', 'depend_corr_linear', 'corr_linear', 'corr_non_linear', 'pps12', 'pps21']
     dfnn = pd.DataFrame(num_num, columns = cols_num_num)
     # format 
     dfnn['corr_linear'] = dfnn['corr_linear'].values.round(decimals=2) 
     dfnn['corr_non_linear'] = dfnn['corr_non_linear'].values.round(decimals=2)
+    dfnn['pps12'] = dfnn['pps12'].values.round(decimals=2)
+    dfnn['pps21'] = dfnn['pps21'].values.round(decimals=2)
     # return
     return dfnn
 
@@ -120,16 +126,19 @@ def analysis_cat_cat(df:pd.DataFrame,
     for ccat in combs_cat[:]:
         # independece test
         is_independent_chi2 = htest.chi_square(df[ccat[0]].values, df[ccat[1]].values, alpha = alpha, verbose = verbose)
+        # PPS
+        pps12 = pps.score(df, ccat[0], ccat[1])["ppscore"]
+        pps21 = pps.score(df, ccat[1], ccat[0])["ppscore"]
         # append
         if only_dependent:
             if  not is_independent_chi2:
-                cat_cat.append([ccat[0], ccat[1], not is_independent_chi2])
+                cat_cat.append([ccat[0], ccat[1], not is_independent_chi2, np.around(pps12, decimals=2), np.around(pps21, decimals=2)])
             else:
                 pass
         else:
-            cat_cat.append([ccat[0], ccat[1], not is_independent_chi2])  
+            cat_cat.append([ccat[0], ccat[1], not is_independent_chi2, np.around(pps12, decimals=2), np.around(pps21, decimals=2)])  
     # store in df and return 
-    cols_cat_cat = ['variable1', 'variable2', 'depend_chi2']
+    cols_cat_cat = ['variable1', 'variable2', 'depend_chi2', 'pps12', 'pps21']
     return pd.DataFrame(cat_cat, columns = cols_cat_cat)
 
 
@@ -170,17 +179,20 @@ def analysis_cat_num(df:pd.DataFrame,
         # variance analysis
         is_samples_same_distribution = htest.analysis_variance(temp[comb_cat_num[0]].values,
                                                                temp[comb_cat_num[1]].values,
-                                                               alpha = alpha, verbose = verbose)       
+                                                               alpha = alpha, verbose = verbose) 
+        # PPS
+        pps12 = pps.score(temp, comb_cat_num[0], comb_cat_num[1])["ppscore"]
+        pps21 = pps.score(temp, comb_cat_num[1], comb_cat_num[0])["ppscore"]                                                              
         # append
         if only_dependent:
             if  not is_samples_same_distribution:
-                cat_num.append([comb_cat_num[0], comb_cat_num[1], not is_samples_same_distribution])
+                cat_num.append([comb_cat_num[0], comb_cat_num[1], not is_samples_same_distribution, np.around(pps12, decimals=2), np.around(pps21, decimals=2)])
             else:
                 pass
         else:
-            cat_num.append([comb_cat_num[0], comb_cat_num[1], not is_samples_same_distribution])      
+            cat_num.append([comb_cat_num[0], comb_cat_num[1], not is_samples_same_distribution, np.around(pps12, decimals=2), np.around(pps21, decimals=2)])      
         # clean
         del temp#, groups, data_groups
     # store in df and return 
-    cols_cat_num = ['variable1', 'variable2', 'subsamples_diff_dist']
+    cols_cat_num = ['variable1', 'variable2', 'subsamples_diff_dist', 'pps12', 'pps21']
     return pd.DataFrame(cat_num, columns = cols_cat_num).sort_values(['variable1', 'variable2']).reset_index(drop=True)
