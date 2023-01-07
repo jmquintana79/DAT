@@ -5,6 +5,7 @@ from eda.tools import validait
 import eda.htest as htest
 import itertools
 import ppscore as pps
+from eda.bhatta_dist import max_bhatta_dist
 
 
 ## Describe relationship between numerical - numerical variables
@@ -182,17 +183,19 @@ def analysis_cat_num(df:pd.DataFrame,
                                                                alpha = alpha, verbose = verbose) 
         # PPS
         pps12 = pps.score(temp, comb_cat_num[0], comb_cat_num[1])["ppscore"]
-        pps21 = pps.score(temp, comb_cat_num[1], comb_cat_num[0])["ppscore"]                                                              
+        pps21 = pps.score(temp, comb_cat_num[1], comb_cat_num[0])["ppscore"]  
+        # Maximum Bhattacharyya distance 
+        max_dist = max_bhatta_dist(temp[comb_cat_num[1]].values, temp[comb_cat_num[0]].values, method='continuous')                                                          
         # append
         if only_dependent:
             if  not is_samples_same_distribution:
-                cat_num.append([comb_cat_num[0], comb_cat_num[1], not is_samples_same_distribution, np.around(pps12, decimals=2), np.around(pps21, decimals=2)])
+                cat_num.append([comb_cat_num[0], comb_cat_num[1], not is_samples_same_distribution, np.around(pps12, decimals=2), np.around(pps21, decimals=2), np.around(max_dist, decimals = 2)])
             else:
                 pass
         else:
-            cat_num.append([comb_cat_num[0], comb_cat_num[1], not is_samples_same_distribution, np.around(pps12, decimals=2), np.around(pps21, decimals=2)])      
+            cat_num.append([comb_cat_num[0], comb_cat_num[1], not is_samples_same_distribution, np.around(pps12, decimals=2), np.around(pps21, decimals=2), np.around(max_dist, decimals = 2)])      
         # clean
-        del temp#, groups, data_groups
+        del temp
     # store in df and return 
-    cols_cat_num = ['variable1', 'variable2', 'subsamples_diff_dist', 'pps12', 'pps21']
+    cols_cat_num = ['variable1', 'variable2', 'subsamples_diff_dist', 'pps12', 'pps21', 'max_bhatta_dist']
     return pd.DataFrame(cat_num, columns = cols_cat_num).sort_values(['variable1', 'variable2']).reset_index(drop=True)
