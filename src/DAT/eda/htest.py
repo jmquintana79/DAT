@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from minepy import MINE
-from eda.tools import validait
+from DAT.eda.tools import validait
 
 
 ## test if it is an array is a uniform distribution for numeric data

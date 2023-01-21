@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
-import eda.tools as tools
-from eda.tools import validait
-import eda.htest as htest
+import DAT.eda.tools as tools
+from DAT.eda.tools import validait
+import DAT.eda.htest as htest
 import itertools
 import ppscore as pps
-from eda.bhatta_dist import max_bhatta_dist
+from DAT.eda.bhatta_dist import max_bhatta_dist
 
 
 ## Describe relationship between numerical - numerical variables

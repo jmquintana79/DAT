@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import kurtosis, skew
-import eda.tools as tools
-from eda.tools import timeit, validait, preparation, cat_encoding
-import eda.htest as htest
-from eda.analysis import analysis_cat_cat, analysis_num_num, analysis_cat_num
+import DAT.eda.tools as tools
+from DAT.eda.tools import timeit, validait, preparation, cat_encoding
+import DAT.eda.htest as htest
+from DAT.eda.analysis import analysis_cat_cat, analysis_num_num, analysis_cat_num
 import itertools
 
  
