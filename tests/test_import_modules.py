@@ -11,7 +11,7 @@ def test_import_lib():
 # test eda module import
 def test_import_eda():
     try:
-        from DAT import eda
+        from DAT import EDA
         is_done = True
     except:
         is_done = False
@@ -21,7 +21,7 @@ def test_import_eda():
 # test plot module import
 def test_import_plot():
     try:
-        from DAT import plot
+        from DAT import PLOTS
         is_done = True
     except:
         is_done = False
