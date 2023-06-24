@@ -1,4 +1,4 @@
-.PHONY: default clean install install_dev uninstall
+.PHONY: default clean install install_dev uninstall tests
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -17,6 +17,7 @@ default:
 	@echo "    make install          # Install library and dependencies."
 	@echo "    make install_dev      # Install library and dependencies for development."
 	@echo "    make uninstall        # Unistall library."
+	@echo "    make tests            # Unitest launching."
 
 ## Delete all compiled Python files
 clean:
@@ -34,3 +35,7 @@ install_dev:
 ## Uninstall packager
 uninstall:
 	pip uninstall DAT
+
+## Unitests
+tests:
+	pytest tests

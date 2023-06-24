@@ -4,7 +4,7 @@
 
 - [x] Preparar la infraestructura de la primera libreria instalable.
 - [x] Instalacion de dependencias para dev ("extra_require.dev").
-- [ ] Preparar testing tools y crear el primer test para validar la carga de los modulos de la libreria.
+- [x] Preparar testing tools y crear el primer test para validar la carga de los modulos de la libreria.
 
 
 ### EDA
