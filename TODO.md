@@ -13,7 +13,13 @@
 - [x] Incluir una clase principal para EDA. Los metodos de esta clase se los sub-modulos actuales de *describe.py*.
 - [ ] Ir incluyendo sub-modulos y a la vez nuevo tests:
     - [x] Describe info method and test.
-
+    - [x] Missing values.
+    - [x] Outliers.
+    - [x] Numeric description.
+    - [x] Categorical decription.
+    - [ ] Relationship.
+    - [ ] Duplicates.
+    - [ ] Timeseries.
 
 ### References
  - [pytest - Basic patterns and examples](https://docs.pytest.org/en/7.1.x/example/simple.html)

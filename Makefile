@@ -16,7 +16,7 @@ default:
 	@echo "    make clean            # Clean unnecessary files."
 	@echo "    make install          # Install library and dependencies."
 	@echo "    make install_dev      # Install library and dependencies for development."
-	@echo "    make uninstall        # Unistall library."
+	@echo "    make uninstall        # Uninstall library."
 	@echo "    make tests            # Unitest launching."
 
 ## Delete all compiled Python files

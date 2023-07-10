@@ -141,7 +141,7 @@ def describe_numeric(df:pd.DataFrame, alpha:float = .05, decimals:int = 2, is_re
     # remove outliers
     if is_remove_outliers:
         for col in cols_num:
-            df[col] = tools.remove_outliers_IQR(df[col], verbose = verbose)       
+            df[col] = tools.remove_outliers_IQR(df[col], verbose = False)       
     # copy data
     data = df[cols_num].copy()
     # describe
