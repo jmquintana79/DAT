@@ -73,3 +73,17 @@ def test_eda_categorical():
         is_done = False
     # test
     assert is_done
+
+
+## test eda summary method is working
+def test_eda_summary():
+    # initialize class
+    eda = EDA()
+    # describe info
+    try:
+        _ = eda.summary(data)
+        is_done = True
+    except:
+        is_done = False
+    # test
+    assert is_done
