@@ -60,6 +60,17 @@ class EDA():
         return dfinfo.sort_values('types', ascending = True)
     
 
+    ## Skimpy Summary
+    @validait
+    def summary(self, data:pd.DataFrame):
+        """
+        Skimpy (library) summary.
+        data -- Data to be summarized.
+        """
+        from skimpy import skim
+        skim(data)
+
+
     ## Missing values analysis
     @validait
     def missing(self, data:pd.DataFrame):
