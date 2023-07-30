@@ -1,6 +1,6 @@
 # custom dev
 .gitignore
-notebook/dev/
+notebooks/dev/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
