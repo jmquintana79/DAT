@@ -473,7 +473,7 @@ def analysis_linear_correlation(data1:np.array,
 
     
 ## Maximal Information Score to estimate non-linear correlation
-def correlation_mic(x:np.array, y:np.array)->float:
+def correlation_mic(x:np.array, y:np.array, verbose:bool = False)->float:
     """
     Maximal Information Score to estimate non-linear correlation.
     x -- first array to be analyzed.
