@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from functools import wraps
 import time
+import logging
 
 
 ## decorator: time spent estimation
@@ -12,7 +13,7 @@ def timeit(func):
         start_time = time.time()
         result = func(*args, **kwargs)
         elapsed_time = time.time() - start_time
-        print('[info] Function "{}()" finished in {:.2f} {}.'.format(
+        logging.info('Function "{}()" finished in {:.2f} {}.'.format(
             func.__name__, elapsed_time if elapsed_time < 60 else elapsed_time / 60., "seconds" if elapsed_time < 60 else "minutes"))
         return result
     return new_func
@@ -25,8 +26,8 @@ def validait(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            descr = '[error] Function "%s()": %s'%(func.__name__,str(e))
-            print(descr)
+            descr = 'Function "%s()": %s'%(func.__name__,str(e))
+            logging.error(descr)
     return handle_error
 
 
@@ -72,7 +73,7 @@ def remove_outliers_IQR(v:np.array, verbose:bool = False)->np.array:
     t_upper = Q3 + 1.5*IQR
     # display
     if verbose:
-        print('Thresholds: lower = %.5f / upper = %.5f'%(t_lower, t_upper))
+        logging.info('Thresholds: lower = %.5f / upper = %.5f'%(t_lower, t_upper))
     # remove values outside of these thresholds and return
     v[v < t_lower] = np.nan
     v[v > t_upper] = np.nan
@@ -98,7 +99,7 @@ def mark_outliers_IQR(v:np.array, num_iqr:float = 1.5, verbose:bool = False)->np
     t_upper = Q3 + num_iqr*IQR
     # display
     if verbose:
-        print('Thresholds: lower = %.5f / upper = %.5f'%(t_lower, t_upper))
+        logging.info('Thresholds: lower = %.5f / upper = %.5f'%(t_lower, t_upper))
     # remove values outside of these thresholds and return
     v[v < t_lower] = np.inf
     v[v > t_upper] = np.inf
@@ -133,7 +134,7 @@ def detect_outliers_LOF(X:np.array, n_neighbors:int = 25, n_jobs:int = 2, verbos
         y_pred = clf.fit_predict(X)
     # display
     if verbose:
-        print(f'There are {y_pred[y_pred == -1].shape[0]} outliers from {y_pred.shape[0]}.') 
+        logging.info(f'There are {y_pred[y_pred == -1].shape[0]} outliers from {y_pred.shape[0]}.') 
     # return
     return y_pred
 
@@ -176,7 +177,7 @@ def multivariate_outliers_detection(data:pd.DataFrame,
             nf = len(data)
             # display
             if verbose:
-                print(f'It was removed {ni - nf} records.')
+                logging.info(f'It was removed {ni - nf} records.')
             # remove unnecessary column
             data.drop('label', axis = 1, inplace = True)
         # if just detection
@@ -212,7 +213,7 @@ def preparation(df:pd.DataFrame, max_num_rows:int = 5000, max_size_cats:int = 5,
         df = df.sample(max_num_rows, random_state = 8)
         # display
         if verbose:
-            print(f"[warning] It has taken a random sample with {len(df)} records.")
+            logging.warning(f"It has taken a random sample with {len(df)} records.")
 
 
     ## get simplified categorical columns reducing the number of possible values
@@ -236,10 +237,10 @@ def preparation(df:pd.DataFrame, max_num_rows:int = 5000, max_size_cats:int = 5,
                 df[col] = df[col].apply(lambda x: "other" if x in cols_to_replace else x)
                 # validate
                 if len(df[col].dropna().unique()) != max_size_cats:
-                    print(f"[error] something was wrong in column '{col}' reducing its possible values.")
+                    logging.error(f"Something was wrong in column '{col}' reducing its possible values.")
                 else:
                     if verbose:
-                        print(f"[info] it was simplified the categorical variable '{col}'.")
+                        logging.info(f"It was simplified the categorical variable '{col}'.")
             else:
                 pass
             # clean

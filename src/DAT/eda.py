@@ -4,6 +4,7 @@ from scipy.stats import kurtosis, skew
 import DAT.funcs.eda.tools as tools
 from DAT.funcs.eda.tools import timeit, validait, preparation, cat_encoding
 import DAT.funcs.eda.htest as htest
+import logging
 
 class EDA():
     
@@ -67,8 +68,11 @@ class EDA():
         Skimpy (library) summary.
         data -- Data to be summarized.
         """
-        from skimpy import skim
-        skim(data)
+        try:
+            from skimpy import skim
+            skim(data)
+        except:
+            logging.warning("Library 'skimpy' is not available.")
 
 
     ## Missing values analysis
@@ -83,7 +87,7 @@ class EDA():
         ntotal_missing = data.isnull().sum().sum()
         # validate
         if ntotal_missing == 0:
-            print('There are not any missing values.')
+            logging.info('There are not any missing values.')
         else:
             import matplotlib.pyplot as plt
             import missingno as msno
@@ -112,7 +116,7 @@ class EDA():
         # validate
         if len(cols_num) == 0:
             # display
-            print('There are not any numerical columns in this dataframe.')
+            logging.info('There are not any numerical columns in this dataframe.')
             # return
             return None
         # initialize output df
@@ -129,7 +133,7 @@ class EDA():
         num_outliers = temp.sum().sum()
         # validate if there are or not outliers
         if num_outliers == 0:
-            print("There are not any outlier in numerical columns.")
+            logging.info("There are not any outlier in numerical columns.")
         else:
             # replace True values with NaN to be detected as a missing value
             temp.replace(True, np.nan, inplace = True)    
@@ -195,7 +199,7 @@ class EDA():
         else:
             dfn['gaussian'] = [htest.test_shapiro(data[c], alpha = alpha) for c in cols_num]
         # test if it is unimodal
-        dfn['unimodal'] = [htest.test_dip(data[c], alpha = alpha) for c in cols_num]
+        dfn['unimodal'] = [htest.test_dip(data[c], alpha = alpha, verbose = False) for c in cols_num]
         # inter-quantil range
         dfn['iqr'] = dfn['75%'].values - dfn['25%'].values
         # normalized std
