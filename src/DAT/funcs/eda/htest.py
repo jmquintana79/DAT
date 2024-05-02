@@ -1,7 +1,11 @@
+import logging
 import numpy as np
 import pandas as pd
-from minepy import MINE
 from DAT.funcs.eda.tools import validait
+try:
+    from minepy import MINE
+except:
+    logging.warning("Library 'minepy' is not installed.")
 
 
 ## test if it is an array is a uniform distribution for numeric data
@@ -27,23 +31,23 @@ def test_uniform_num(data:np.array, alpha:float = .05, verbose:bool = False)->bo
     except:
         # manage exception
         if verbose:
-            print('[error-Uniform num] It was not possible get a result.')
+            logging.error('[Uniform num] It was not possible get a result.')
         return np.nan
             
     # display
     if verbose:
-        print('stat=%.3f, p=%.3f' % (stat, p))
+        logging.info('stat=%.3f, p=%.3f' % (stat, p))
     # results
     if p > alpha:
         # display
         if verbose:
-            print('Probably is Uniform')
+            logging.info('Probably is Uniform')
         # return
         return True
     else:
         # display
         if verbose:
-            print('Probably is not Uniform') 
+            logging.info('Probably is not Uniform') 
         # return
         return False
 
@@ -81,17 +85,17 @@ def test_uniform_cat(data:np.array, alpha:float = .05, verbose:bool = False)->bo
     except:
         # manage exception
         if verbose:
-            print('[error-Uniform cat] It was not possible get a result.')
+            logging.error('[Uniform cat] It was not possible get a result.')
         return np.nan
     if verbose:
-        print('stat=%.3f, p=%.3f' % (stat, p))
+        logging.info('stat=%.3f, p=%.3f' % (stat, p))
     if p > alpha:
         if verbose:
-            print('Probably is Uniform')
+            logging.info('Probably is Uniform')
         return True
     else:
         if verbose:
-            print('Probably is not Uniform')   
+            logging.info('Probably is not Uniform')   
         return False
 
     
@@ -113,22 +117,22 @@ def test_shapiro(data:np.array, alpha:float = .05, verbose:bool = False)->bool:
     except:
         # manage exception
         if verbose:
-            print('[error-Shapiro] It was not possible get a result.')
+            logging.error('[Shapiro] It was not possible get a result.')
         return np.nan        
     # display
     if verbose:
-        print('stat=%.3f, p=%.3f' % (stat, p))
+        logging.info('stat=%.3f, p=%.3f' % (stat, p))
     # results
     if p > alpha:
         # display
         if verbose:
-            print('Probably Gaussian')
+            logging.info('Probably Gaussian')
         # return
         return True
     else:
         # display
         if verbose:
-            print('Probably not Gaussian')
+            logging.info('Probably not Gaussian')
         # return
         return False
 
@@ -151,22 +155,22 @@ def test_anderson(data:np.array, alpha:float = .05, verbose:bool = False)->bool:
     except:
         # manage exception
         if verbose:
-            print('[error-Anderson] It was not possible get a result.')
+            logging.error('[Anderson] It was not possible get a result.')
         return np.nan        
     # display
     if verbose:
-        print('stat=%.3f, p=%.3f' % (stat, p))
+        logging.info('stat=%.3f, p=%.3f' % (stat, p))
     # results
     if p > alpha:
         # display
         if verbose:
-            print('Probably Gaussian')
+            logging.info('Probably Gaussian')
         # return
         return True
     else:
         # display
         if verbose:
-            print('Probably not Gaussian')
+            logging.info('Probably not Gaussian')
         # return
         return False
             
@@ -189,24 +193,24 @@ def test_anderson_exponential(data:np.array, verbose:bool = False)->bool:
     except:
         # manage exception
         if verbose:
-            print('[error-Anderson] It was not possible get a result.')
+            logging.error('[Anderson] It was not possible get a result.')
         return np.nan     
 
     # display
     if verbose:
-        print ('Anderson Test'.center(110, '-'))
-        print ('t_stat: %s' % (result.statistic))   
+        logging.info('Anderson Test'.center(110, '-'))
+        logging.info('t_stat: %s' % (result.statistic))   
     # results
     if result.statistic < cv:
         # display
         if verbose:
-            print('Probably Exponential at the 1% of significance level' % (sl))
+            logging.info('Probably Exponential at the 1% of significance level' % (sl))
         # return result
         return True
     else:
         # display
         if verbose:
-            print('Probably not Exponential at the 1% of significance level' % (sl))
+            logging.info('Probably not Exponential at the 1% of significance level' % (sl))
         # return 
         return False
     
@@ -224,26 +228,32 @@ def test_dip(data:np.array, alpha:float = 0.05, verbose:bool = False)->bool:
     data = data[~(np.isnan(data))]
     try:
         # sort data
-        data = np.msort(data)
+        #data = np.msort(data)
         # test
-        stat, p, _ = dip.diptst(data)
-    except:
+        #stat, p, _ = dip.diptst(data)
+        import diptest
+        stat, p = diptest.diptest(data)
+        
+    except Exception as e:
         # manage exception
         if verbose:
-            print('[error-Unimodal] It was not possible get a result.')
-        return np.nan        
+            logging.error('It was not possible get a result with "unidip".')
+            logging.error(str(e))
+        return np.nan   
+    
+         
     if p is None:
         return np.nan
     # display
     if verbose:
-        print('stat=%.3f, p=%.3f' % (stat, p))
+        logging.info('stat=%.3f, p=%.3f' % (stat, p))
     if p > alpha:
         if verbose:
-            print('Probably unimodal')
+            logging.info('Probably unimodal')
         return True
     else:
         if verbose:
-            print('Probably not unimodal.')
+            logging.info('Probably not unimodal.')
         return False
 
 
@@ -269,19 +279,19 @@ def correlation_pearson(data1:np.array,
     except:
         # manage exception
         if verbose:
-            print('[error-Pearson] It was not possible get a result.')
+            logging.error('[Pearson] It was not possible get a result.')
         if return_corr:
             return np.nan, np.nan
         else:
             return np.nan    
     # display
     if verbose:
-        print('corr=%.3f, p=%.3f' % (corr, p))
+        logging.info('corr=%.3f, p=%.3f' % (corr, p))
     # check result and return
     if p > alpha:
         # display
         if verbose:
-            print('Probably independent')
+            logging.info('Probably independent')
         # return
         if return_corr:
             return corr, p
@@ -290,7 +300,7 @@ def correlation_pearson(data1:np.array,
     else:
         # display
         if verbose:
-            print('Probably dependent')
+            logging.info('Probably dependent')
         # return
         if return_corr:
             return corr, p
@@ -320,19 +330,19 @@ def correlation_spearman(data1:np.array,
     except:
         # manage exception
         if verbose:
-            print('[error-Spearman] It was not possible get a result.')
+            logging.error('[Spearman] It was not possible get a result.')
         if return_corr:
             return np.nan, np.nan
         else:
             return np.nan        
     # display
     if verbose:
-        print('corr=%.3f, p=%.3f' % (corr, p))
+        logging.info('corr=%.3f, p=%.3f' % (corr, p))
     # check result and return
     if p > alpha:
         # display
         if verbose:
-            print('Probably independent')
+            logging.info('Probably independent')
         # return
         if return_corr:
             return corr, p
@@ -341,7 +351,7 @@ def correlation_spearman(data1:np.array,
     else:
         # display
         if verbose:
-            print('Probably dependent')
+            logging.info('Probably dependent')
         # return
         if return_corr:
             return corr, p
@@ -371,19 +381,19 @@ def correlation_kendalltau(data1:np.array,
     except:
         # manage exception
         if verbose:
-            print('[error-Kendall Tau] It was not possible get a result.')
+            logging.error('[Kendall Tau] It was not possible get a result.')
         if return_corr:
             return np.nan, np.nan
         else:
             return np.nan            
     # visualize
     if verbose:
-        print('corr=%.3f, p=%.5f' % (corr, p))
+        logging.info('corr=%.3f, p=%.5f' % (corr, p))
     # check result and return
     if p > alpha:
         # display
         if verbose:
-            print('Probably independent')
+            logging.info('Probably independent')
         # return
         if return_corr:
             return corr, p
@@ -392,7 +402,7 @@ def correlation_kendalltau(data1:np.array,
     else:
         # display
         if verbose:
-            print('Probably dependent')
+            logging.info('Probably dependent')
         # return
         if return_corr:
             return corr, p
@@ -473,7 +483,7 @@ def analysis_linear_correlation(data1:np.array,
 
     
 ## Maximal Information Score to estimate non-linear correlation
-def correlation_mic(x:np.array, y:np.array)->float:
+def correlation_mic(x:np.array, y:np.array, verbose:bool = False)->float:
     """
     Maximal Information Score to estimate non-linear correlation.
     x -- first array to be analyzed.
@@ -489,7 +499,7 @@ def correlation_mic(x:np.array, y:np.array)->float:
     except:
         # manage exception
         if verbose:
-            print('[error-MIC] It was not possible get a result.')
+            logging.error('[MIC] It was not possible get a result.')
         return np.nan        
 
 
@@ -511,22 +521,22 @@ def chi_square(data1:np.array, data2:np.array, alpha:float = 0.05, verbose:bool 
     except:
         # manage exception
         if verbose:
-            print('[error-chi square] It was not possible get a result.')
+            logging.error('[chi square] It was not possible get a result.')
         return np.nan            
     # display
     if verbose:
-        print('stat=%.3f, p=%.3f' % (stat, p))
+        logging.info('stat=%.3f, p=%.3f' % (stat, p))
     # results
     if p > alpha:
         # display
         if verbose:
-            print('Probably independent')
+            logging.info('Probably independent')
         # return 
         return True
     else:
         # display
         if verbose:
-            print('Probably dependent')
+            logging.info('Probably dependent')
         # return
         return False
     
@@ -548,13 +558,13 @@ def test_leneve(*args, alpha:float = 0.05, verbose:bool = False)->bool:
     if p > alpha:
         # display
         if verbose:
-            print(f'Probably all samples with equal variances (fail to reject H0 with alpha = {alpha})')
+            logging.info(f'Probably all samples with equal variances (fail to reject H0 with alpha = {alpha})')
         # return
         return True
     else:
         # display
         if verbose:
-            print(f'Probably all samples with different variances (reject H0 with alpha = {alpha})')
+            logging.info(f'Probably all samples with different variances (reject H0 with alpha = {alpha})')
         # return
         return False
     
@@ -577,22 +587,22 @@ def ANOVA(*args, alpha:float = 0.05, verbose:bool = False)->bool:
     except:
         # manage exception
         if verbose:
-            print('[error-ANOVA] It was not possible get a result.')
+            logging.info('[ANOVA] It was not possible get a result.')
         return np.nan           
     # display
     if verbose:
-        print('Statistics=%.3f, p=%.3f' % (stat, p))
+        logging.info('Statistics=%.3f, p=%.3f' % (stat, p))
     # interpret
     if p > alpha:
         # display
         if verbose:
-            print(f'Same distributions (fail to reject H0 with alpha = {alpha})')
+            logging.info(f'Same distributions (fail to reject H0 with alpha = {alpha})')
         # return
         return True
     else:
         # display
         if verbose:
-            print(f'Different distributions (reject H0 with alpha = {alpha})')
+            logging.info(f'Different distributions (reject H0 with alpha = {alpha})')
         # return
         return False
     
@@ -615,22 +625,22 @@ def test_kruskal(*args, alpha:float = 0.05, verbose:bool = False)->bool:
     except:
         # manage exception
         if verbose:
-            print('[error-Kruskal] It was not possible get a result.')
+            logging.error('[Kruskal] It was not possible get a result.')
         return np.nan           
     # display
     if verbose:
-        print('Statistics=%.3f, p=%.3f' % (stat, p))
+        logging.info('Statistics=%.3f, p=%.3f' % (stat, p))
     # interpret
     if p > alpha:
         # display
         if verbose:
-            print(f'Same distributions (fail to reject H0 with alpha = {alpha})')
+            logging.info(f'Same distributions (fail to reject H0 with alpha = {alpha})')
         # return
         return True
     else:
         # display
         if verbose:
-            print(f'Different distributions (reject H0 with alpha = {alpha})')
+            logging.info(f'Different distributions (reject H0 with alpha = {alpha})')
         # return
         return False
     
