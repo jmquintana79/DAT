@@ -26,11 +26,11 @@ clean:
 
 ## Install package
 install:
-	pip install -e .
+	pip install --use-pep517 -e .
 
 ## Install package with extra dependencies for development
 install_dev:
-	pip install -e .[dev]
+	pip install --use-pep517 -e .[dev]
 
 ## Uninstall packager
 uninstall:
