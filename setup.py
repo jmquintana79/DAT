@@ -5,11 +5,11 @@ setup(
     install_requires=[
         "pandas >= 0.20.0",
         "scikit-learn >= 0.24.1",
-        "missingno==0.5.1",
+        "missingno",#"missingno==0.5.1",
         "matplotlib",
-        "skimpy==0.0.9", # required python >=3.8 
+        "skimpy",#==0.0.9", # required python >=3.8 
         "minepy==1.2.6",
-        "unidip==0.1.1",
+        "unidip", #"unidip==0.1.1",
         "seaborn"
         ],
     extras_require={
