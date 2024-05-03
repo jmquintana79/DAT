@@ -89,6 +89,12 @@ def mark_outliers_IQR(v:np.array, num_iqr:float = 1.5, verbose:bool = False)->np
     verbose -- display extra information (default, False).
     return -- array of values after removing outliers.
     """
+    # validate
+    assert isinstance(v, np.ndarray)
+    assert num_iqr > 0
+    assert isinstance(verbose, bool)
+    if v.dtype is np.dtype('int'):
+        v = v.astype(float)
     # map infinite value
     v[v==np.inf] = np.nan
     # estimate boundary thresholds

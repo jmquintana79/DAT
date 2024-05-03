@@ -145,7 +145,6 @@ class EDA():
         """
         # validate
         assert isinstance(df, pd.DataFrame)
-        assert isinstance(num_iqr, float)
         assert num_iqr > 0
         if self._validate_if_df_empty(df):
             return None
@@ -164,7 +163,11 @@ class EDA():
             # collect data
             v = df[c].values
             # mark outliers
-            v = tools.mark_outliers_IQR(v, num_iqr = num_iqr, verbose = False)
+            try:
+                v = tools.mark_outliers_IQR(v, num_iqr = num_iqr, verbose = False)
+            except Exception as e:
+                logging.error(f"It was not possible to mark outliers for the column '{c}'.")
+                logging.error(str(e))
             # include in marks in output df
             temp[c] = (v == np.inf)
         # number of outliers found
