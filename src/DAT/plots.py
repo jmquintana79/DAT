@@ -5,7 +5,13 @@ from DAT.funcs.eda.tools import timeit, validait
 import seaborn as sns
 sns.set_theme(style="whitegrid")
 import matplotlib.pyplot as plt
-
+# logging
+import logging
+FORMAT = '%(levelname)s: %(message)s'
+logging.basicConfig(
+    level=logging.INFO, 
+    format=FORMAT, 
+)
 
 class PLOTS():
 
