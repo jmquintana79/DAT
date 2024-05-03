@@ -4,6 +4,7 @@ from scipy.stats import kurtosis, skew
 import DAT.funcs.eda.tools as tools
 from DAT.funcs.eda.tools import timeit, validait, preparation, cat_encoding
 import DAT.funcs.eda.htest as htest
+import DAT.funcs.eda.analysis as analysis
 # logging
 import logging
 FORMAT = '%(levelname)s: %(message)s'
@@ -335,3 +336,46 @@ class EDA():
             logging.info(f"Number of duplicates for subset {subset} = {ni - nf} / {np.round((ni-nf)*100./ni, 2)} %")
         # return
         return None        
+    
+
+    ## Describe bivariate relationships
+    @timeit
+    @validait
+    def bivariate(self,
+                    df:pd.DataFrame, 
+                    only_dependent:bool = False, 
+                    size_max_sample:int = None, 
+                    is_remove_outliers:bool = True,
+                    alpha:float = 0.05, 
+                    max_num_rows:int = 5000, 
+                    max_size_cats:int = 5,
+                    verbose:bool = False)->pd.DataFrame:                       
+        """
+        Describe bivariate relationships.
+        df -- data to be analized.
+        only_dependent -- Only display relationships with dependeces (default, False).
+        size_max_sample -- Maximum sample size to apply analysis with whole sample. If this value
+                        is not None are used random subsamples although it will not remove bivariate
+                        outliers (default, None).
+        is_remove_outliers -- Remove or not univariate outliers (default, True).
+        alpha -- Significance level (default, 0.05).
+        max_num_rows -- Maximum number of rows allowed without considering a sample (default, 5000).
+        max_size_cats -- Maximum number of possible values in a categorical variable to be allowed (default, 5).
+        return -- Results in a table.
+        """ 
+        # data preparation
+        data = preparation(df.copy(), max_num_rows, max_size_cats, verbose = True)
+        # relationship num - num
+        dfnn = analysis.analysis_num_num(data, only_dependent = only_dependent, size_max_sample = size_max_sample,
+                                is_remove_outliers = is_remove_outliers, alpha = alpha, verbose = verbose)                                                    
+        # relationship cat - cat
+        dfcc = analysis.analysis_cat_cat(data, only_dependent = only_dependent, alpha = alpha, verbose = verbose)
+        # relationship cat - num
+        dfcn = analysis.analysis_cat_num(data, only_dependent = only_dependent, alpha = alpha, 
+                                is_remove_outliers = is_remove_outliers, verbose = verbose)
+        # append results
+        dfbiv = dfnn.copy()
+        dfbiv = dfbiv.append(dfcc)
+        dfbiv = dfbiv.append(dfcn)
+        # return
+        return dfbiv

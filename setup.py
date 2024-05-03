@@ -10,6 +10,7 @@ l_requirements = [
     "scikit-learn", #"scikit-learn >= 0.24.1",
     "missingno==0.5.2", 
     "diptest",
+    "ppscore",
     "skimpy" # ,#==0.0.9", # required python >=3.8
 ]
 # add or not according the os platform
