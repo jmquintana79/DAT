@@ -4,7 +4,13 @@ from scipy.stats import kurtosis, skew
 import DAT.funcs.eda.tools as tools
 from DAT.funcs.eda.tools import timeit, validait, preparation, cat_encoding
 import DAT.funcs.eda.htest as htest
+# logging
 import logging
+FORMAT = '%(levelname)s: %(message)s'
+logging.basicConfig(
+    level=logging.INFO, 
+    format=FORMAT, 
+)
 
 class EDA():
     
@@ -269,3 +275,63 @@ class EDA():
             dfc[col] = dfc[col].astype(str)    
         # return
         return dfc    
+    
+
+    ## duplicates
+    @validait
+    def duplicates(self, df:pd.DataFrame, subset:list = []):
+        """
+        Estimate number of duplicates for a columns subsets.
+        df -- Data to be analyzed.
+        subset -- Column subset to be analyzed.
+        """
+        # initial number of columns
+        ni = len(df)
+        # initialize
+        number_dupli_columns = list()
+        # in case of subset emtpy
+        if len(subset) == 0:
+            ## number of duplicates for each column
+            #
+            # loop of columns 
+            for c in df.columns:
+                # get subset of columns
+                subset = [c]
+                ## estimate number of duplicates
+                nf = len(df.drop_duplicates(subset=subset))
+                # display
+                logging.info(f"Number of duplicates for subset {subset} = {ni - nf} / {np.round((ni-nf)*100./ni, 2)} %")
+                # append
+                number_dupli_columns.append(ni-nf)
+            ## number of duplicates for all columns
+            #
+            # subset for all df
+            subset = df.columns.tolist()
+            # estimate number of duplicates for all df
+            nf = len(df.drop_duplicates(subset=subset))
+            # display
+            logging.info(f"Number of duplicates for ALL columns = {ni - nf} / {np.round((ni-nf)*100./ni, 2)} %")
+            ## average of number of duplicates per columns 
+            # 
+            # estimate avg
+            number_dupli_columns = np.array(number_dupli_columns)    
+            med_number_dupli_columns = int(np.median(number_dupli_columns))
+            # get subset with columns with number of duplicates upper than the avg
+            subset = df.columns.values
+            subset = subset[np.where(number_dupli_columns > med_number_dupli_columns)[0]]
+            # estimate number of columns
+            nf = len(df.drop_duplicates(subset=subset))
+            # display
+            logging.info(f"Number of duplicates for subset {subset} = {ni - nf} / {np.round((ni-nf)*100./ni, 2)} %")
+        else: 
+            # validate subset
+            for c in subset:
+                if not c in df.columns.tolist():
+                    logging.error(f"Column '{c}' is not available.")
+                    return None
+            # estimate number of columns
+            nf = len(df.drop_duplicates(subset=subset))
+            # display
+            logging.info(f"Number of duplicates for subset {subset} = {ni - nf} / {np.round((ni-nf)*100./ni, 2)} %")
+        # return
+        return None        
