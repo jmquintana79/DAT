@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import kurtosis, skew
 import DAT.funcs.eda.tools as tools
-from DAT.funcs.eda.tools import timeit, validait, preparation, cat_encoding
+from DAT.funcs.eda.tools import timeit, validait, preparation
 import DAT.funcs.eda.htest as htest
 import DAT.funcs.eda.analysis as analysis
 # logging
@@ -15,8 +15,18 @@ logging.basicConfig(
 
 class EDA():
     
+    ## constructor
     def __init__(self):
         pass    
+
+    ## validate if a df is empthy
+    def _validate_if_df_empty(self, df:pd.DataFrame)->bool:
+        assert isinstance(df, pd.DataFrame), "'df' argument must be a Pandas df."
+        if len(df) == 0:
+            logging.warning("Input df is empty.")
+            return True 
+        else:
+            return False       
 
 
     ## get basic information of df variables
@@ -28,6 +38,12 @@ class EDA():
         decimals -- precission to be returned (default, 2).
         return -- dataframe with the collected information.
         """
+        # validate
+        assert isinstance(decimals, int)
+        assert decimals >= 0
+        assert isinstance(data, pd.DataFrame)
+        if self._validate_if_df_empty(data):
+            return None
         # copy data
         df = data.copy()
         # get names of numeric columns
@@ -75,6 +91,11 @@ class EDA():
         Skimpy (library) summary.
         data -- Data to be summarized.
         """
+        # validate
+        assert isinstance(data, pd.DataFrame)
+        if self._validate_if_df_empty(data):
+            return None     
+        # analysis   
         try:
             from skimpy import skim
             skim(data)
@@ -90,6 +111,10 @@ class EDA():
         data -- df to be analized.
         return -- None.
         """
+        # validate
+        assert isinstance(data, pd.DataFrame)
+        if self._validate_if_df_empty(data):
+            return None
         # estimate number of missing values
         ntotal_missing = data.isnull().sum().sum()
         # validate
@@ -118,6 +143,12 @@ class EDA():
         num_iqr -- Number of IQR's to estimate outliers threshold using quantiles (default, 1.5).
         return -- None.
         """
+        # validate
+        assert isinstance(df, pd.DataFrame)
+        assert isinstance(num_iqr, float)
+        assert num_iqr > 0
+        if self._validate_if_df_empty(df):
+            return None
         # get names of numeric columns
         cols_num = df.select_dtypes(include=['float64', 'int64']).columns.values
         # validate
@@ -162,6 +193,14 @@ class EDA():
         is_remove_outliers -- Removing univariate outliers or not (default, False).
         return -- describe df.
         """
+        # validate
+        assert isinstance(df, pd.DataFrame)
+        assert isinstance(alpha, float)
+        assert isinstance(is_remove_outliers, bool)
+        assert alpha > 0. and alpha < 1.
+        assert decimals >= 0
+        if self._validate_if_df_empty(df):
+            return None
         # get names of numeric columns
         cols_num = df.select_dtypes(include=['float64', 'int64']).columns.values
         # remove outliers
@@ -231,6 +270,14 @@ class EDA():
         decimals -- precission to be returned (default, 2).
         return -- describe df.
         """
+        # validate
+        assert isinstance(df, pd.DataFrame)
+        assert isinstance(max_size_cats, int)
+        assert max_size_cats >= 2
+        assert decimals >= 0
+        assert alpha > 0. and alpha < 1.
+        if self._validate_if_df_empty(df):
+            return None        
         # get names of categorical columns
         cols_cat = df.select_dtypes(include=['object', 'int64', 'category', 'bool']).columns.values
         # copy data
@@ -278,6 +325,67 @@ class EDA():
         return dfc    
     
 
+    ## Describe temporal columns
+    @validait
+    def temporal(self, df:pd.DataFrame, decimals:int = 2)->pd.DataFrame:
+        """
+        Describe tool for datetime data.
+        df -- dataframe with data to be described.
+        decimals -- precission to be returned (default, 2).
+        return -- describe df.
+        """    
+        # validate
+        assert isinstance(df, pd.DataFrame)
+        assert decimals >=0
+        if self._validate_if_df_empty(df):
+            return None           
+        # get names of categorical columns
+        cols_dt = df.select_dtypes(include=['datetime64[ns]']).columns.values
+        # validate
+        if len(cols_dt) == 0:
+            # display
+            logging.warning("There are not any datetime column.")
+            # return
+            return None
+        # copy data
+        data = df[cols_dt].copy()
+        # main description
+        dfdt = data[cols_dt].describe().T
+        # rename columns
+        dfdt.rename(columns = {'top':'most_frequent', 'freq':'num_most_frequent'}, inplace = True)
+        # remove most frequent information when count and unique are equal
+        dfdt.loc[dfdt[dfdt['count'] == dfdt['unique']].index.tolist(), ['most_frequent', 'num_most_frequent']] = np.nan
+        ## timedelta analysis
+        # initialize
+        td_cols = list()
+        per_td_cols = list()
+        num_td_cols = list()
+        # loop of dt columms
+        for col in dfdt.index.tolist():
+            # counting timedelta
+            temp = data[[col]].diff().dropna()[[col]].value_counts(normalize=True,sort=True,ascending=False)*100
+            # get tds
+            td = temp.index
+            # percent of tds
+            per_td = temp.values
+            # num of tds
+            num_td = len(td)
+            # append
+            td_cols.append(td[0])
+            per_td_cols.append(per_td[0])
+            num_td_cols.append(num_td)
+            # clean
+            del temp
+        # store
+        dfdt['most_frequent_td'] = td_cols
+        dfdt['%most_frequent_td'] = per_td_cols
+        dfdt['num_td'] = num_td_cols
+        # format float
+        dfdt['%most_frequent_td'] = dfdt['%most_frequent_td'].values.round(decimals=decimals) 
+        # return
+        return dfdt
+    
+
     ## duplicates
     @validait
     def duplicates(self, df:pd.DataFrame, subset:list = []):
@@ -286,6 +394,11 @@ class EDA():
         df -- Data to be analyzed.
         subset -- Column subset to be analyzed.
         """
+        # validate
+        assert isinstance(df, pd.DataFrame)
+        assert isinstance(subset, list) or isinstance(subset, np.array)
+        if self._validate_if_df_empty(df):
+            return None           
         # initial number of columns
         ni = len(df)
         # initialize
@@ -363,6 +476,17 @@ class EDA():
         max_size_cats -- Maximum number of possible values in a categorical variable to be allowed (default, 5).
         return -- Results in a table.
         """ 
+        # validate
+        assert isinstance(df, pd.DataFrame)
+        assert isinstance(only_dependent, bool)
+        assert size_max_sample is None or (isinstance(size_max_sample, int) and size_max_sample > 0)
+        assert isinstance(is_remove_outliers, bool)
+        assert alpha > 0. and alpha < 1.
+        assert max_num_rows > 0
+        assert max_size_cats >= 2
+        assert isinstance(verbose, bool)        
+        if self._validate_if_df_empty(df):
+            return None                   
         # data preparation
         data = preparation(df.copy(), max_num_rows, max_size_cats, verbose = True)
         # relationship num - num
@@ -379,3 +503,4 @@ class EDA():
         dfbiv = dfbiv.append(dfcn)
         # return
         return dfbiv
+    
