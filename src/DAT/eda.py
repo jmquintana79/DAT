@@ -138,7 +138,8 @@ class EDA():
     @validait
     def outliers(self, df:pd.DataFrame, num_iqr:float = 1.5):
         """
-        Outlier values analysis. The outlier detection tecnique used is with IQR distances.
+        Outlier values analysis for float values. The outlier detection tecnique used is with 
+        IQR distances.
         df -- df to be analyzed.
         num_iqr -- Number of IQR's to estimate outliers threshold using quantiles (default, 1.5).
         return -- None.
@@ -149,7 +150,7 @@ class EDA():
         if self._validate_if_df_empty(df):
             return None
         # get names of numeric columns
-        cols_num = df.select_dtypes(include=['float64', 'int64']).columns.values
+        cols_num = df.select_dtypes(include=['float64']).columns.values
         # validate
         if len(cols_num) == 0:
             # display
