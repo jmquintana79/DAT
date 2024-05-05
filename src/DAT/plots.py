@@ -18,6 +18,7 @@ class PLOTS():
     def __init__(self):
         pass
 
+    ## validate if a df is emtpy        
     def _validate_is_empty_df(self, df:pd.DataFrame)->bool:
         if len(df) == 0:
             logging.warning("Input df is emtpy.")
@@ -25,15 +26,18 @@ class PLOTS():
         else:
             return False
 
-
+    ## collect columns of numerical variables
     def columns_numerical(self, df:pd.DataFrame)->list:
         return df.select_dtypes(include=['float64']).columns.tolist()  
 
-
+    ## collect columns of categorical variables
     def columns_categorical(self, df:pd.DataFrame)->list:
         return df.select_dtypes(include=['int64', 'object', 'category', 'bool']).columns.tolist() 
     
 
+    """ 1 NUMERICAL VARIABLES """
+
+    ## violin plot
     @staticmethod
     def _dist(df:pd.DataFrame, column:str, ax:"matplotlib axis")->"matplotlib axis":
         # validation
@@ -46,8 +50,6 @@ class PLOTS():
         # return axis
         return ax
 
-
-    """ 1 NUMERICAL VARIABLES """
 
     ## plot histogram of selected column
     @validait
@@ -65,9 +67,9 @@ class PLOTS():
         plt.show()
     
     
-    # plot histogram of selected columns
+    ## descriptive charts for numerical variables (histograms)
     @validait
-    def histograms(self, df:pd.DataFrame, 
+    def nums(self, df:pd.DataFrame, 
                    columns:"list or str" = [], 
                    num_plots_per_row:int = 3, 
                    figsize:tuple = (0,0)):
